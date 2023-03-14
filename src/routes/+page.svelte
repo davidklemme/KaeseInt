@@ -41,7 +41,7 @@
       </div>
      
       {#if loading}
-        <div class="flex flex-col items-center justify-center w-full m-12a">
+        <div class="flex flex-col items-center justify-center w-full m-12">
           <Loading />
         </div>
       {/if}

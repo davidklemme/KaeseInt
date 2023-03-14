@@ -10,6 +10,14 @@ const openai = new OpenAIApi(configuration);
 
 export const POST = async (event) => {
 	const data = await event.request.json();
+	if (!data.searchTerm.startsWith('#!'))
+		return new Response(JSON.stringify({ response: 'nok' }), {
+			status: 400,
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+	data.searchTerm = data.searchTerm.replace('#!', '');
 	const answer = (await getOpenAIResponse(data.searchTerm)).data.choices[0].message?.content;
 	// const answer =
 	// 	'Ein Merlot ist ein mittelschwerer Wein mit einer würzigen und warmen Charakteristik. Er eignet sich hervorragend für die Kombination mit verschiedenen Käsesorten. Einige passende Käse für Merlot sind:\n' +
