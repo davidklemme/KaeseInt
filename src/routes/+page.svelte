@@ -8,13 +8,29 @@
 
   let loading = false
   async function getCheese(searchTerm:string) {
-    return await fetch('/cheese/chatKI/', {
+    try {
+      const KIRes = await fetch('/cheese/chatKI/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ searchTerm })
     })
+    if (KIRes.status > 299) {
+      console.log('Error: ', KIRes.status)
+      throw new Error("Nope");
+    }
+    if (!KIRes) {
+     throw new Error("Nope");
+      
+    }
+    loading = false
+    return KIRes;
+    } catch (error) {
+      loading = false
+      return new Response(JSON.stringify({answer: 'Ich habe leider keine Antwort für dich.'})) 
+    }
+    
     }
 
     async function handleSumbit(searchTerm:string) {
