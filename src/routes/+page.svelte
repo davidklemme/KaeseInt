@@ -4,7 +4,9 @@
 </style>
 
 <script lang="ts">
-  
+	import Loading from "../component/ui/loading.svelte";
+
+  let loading = false
   async function getCheese(searchTerm:string) {
     return await fetch('/cheese/chatKI/', {
       method: 'POST',
@@ -16,10 +18,11 @@
     }
 
     async function handleSumbit(searchTerm:string) {
+      if(loading) return
       if(!searchTerm) return
-
+      loading = true
       data = await (await (await getCheese(searchTerm)).json()).answer
-
+      loading = false
     }
     let data = '';
 
@@ -37,7 +40,13 @@
         }}/>
       </div>
      
+      {#if loading}
+        <div class="flex flex-col items-center justify-center w-full m-12a">
+          <Loading />
+        </div>
+      {/if}
       {#await data}
+      
         
       {:then data}
         <p class="m-12 text-xl font-thin w-3/4 whitespace-pre-line">{data}</p>
