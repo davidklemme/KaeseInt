@@ -7,15 +7,16 @@
 	import Loading from "../component/ui/loading.svelte";
 
   let loading = false
-  async function getCheese(searchTerm:string) {
+  async function getCheese(searchTerm:string):string {
     try {
-      const KIRes = await fetch('/cheese/chatKI/', {
+      const KIRes: Response = await fetch('/cheese/chatKI/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ searchTerm })
     })
+    
     if (KIRes.status > 299) {
       console.log('Error: ', KIRes.status)
       throw new Error("Nope");
@@ -24,24 +25,48 @@
      throw new Error("Nope");
       
     }
+    
     loading = false
-    return KIRes;
+    return await handleChatResponse(KIRes) || '';
     } catch (error) {
       loading = false
-      return new Response(JSON.stringify({answer: 'Ich habe leider keine Antwort für dich.'})) 
+      console.log(error)
+      return ('Ich habe leider keine Antwort für dich.') 
     }
     
     }
 
-    async function handleSumbit(searchTerm:string) {
+   async function handleChatResponse (completion: Response) {
+    const resData = completion.body;
+    
+    if (!resData) {
+      console.log('Abort handler');
+      return;
+    }
+
+    let chatResponse= ''
+
+    const reader = resData.pipeThrough(new TextDecoderStream()).getReader();
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      chatResponse += value
+      console.log(chatResponse)
+    }
+    loading = false
+    
+    return chatResponse || ''
+  }
+  let data = ''
+  async function handleSumbit(searchTerm:string) {
       if(loading) return
       if(!searchTerm) return
       loading = true
-      data = await (await (await getCheese(searchTerm)).json()).answer
-      loading = false
-    }
-    let data = '';
-
+      data = getCheese(searchTerm)
+   
+  }
+  
+  
 
 </script>
 
