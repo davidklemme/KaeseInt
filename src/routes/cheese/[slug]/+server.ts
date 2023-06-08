@@ -54,7 +54,7 @@ export const POST = async (event) => {
 			model: 'gpt-4',
 			messages: [
 				{ role: 'system', content: 'You are a wine and cheese coinesseur.' },
-				{ role: 'user', content: `Welche 3 Käse passen am besten zu  ${data.searchTerm}?` }
+				{ role: 'user', content: `Welcher Käse passt am besten zu  ${data.searchTerm}?` }
 			],
 			stream: true
 		})

@@ -4,10 +4,10 @@
 </style>
 
 <script lang="ts">
-	import Loading from "../component/ui/loading.svelte";
 
-  let loading = false
-  async function getCheese(searchTerm:string):string {
+  let data = ''
+
+  async function getCheese(searchTerm:string):Promise<string> {
     try {
       const KIRes: Response = await fetch('/cheese/chatKI/', {
       method: 'POST',
@@ -15,58 +15,44 @@
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ searchTerm })
-    })
-    
-    if (KIRes.status > 299) {
-      console.log('Error: ', KIRes.status)
-      throw new Error("Nope");
-    }
-    if (!KIRes) {
-     throw new Error("Nope");
+      })
       
-    }
-    
-    loading = false
-    return await handleChatResponse(KIRes) || '';
+      if (KIRes.status > 299) {
+        console.log('Error: ', KIRes.status)
+        throw new Error("Nope");
+      }
+      if (!KIRes) {
+      throw new Error("Nope");
+        
+      }
+      return await handleChatResponse(KIRes) || ''
     } catch (error) {
-      loading = false
       console.log(error)
-      return ('Ich habe leider keine Antwort für dich.') 
-    }
-    
+      return 'Ups, das weiß ich nicht..'
+      }
     }
 
-   async function handleChatResponse (completion: Response) {
-    const resData = completion.body;
-    
+ async function handleChatResponse (completion: Response) {
+    const resData = completion.body;    
     if (!resData) {
       console.log('Abort handler');
       return;
     }
-
-    let chatResponse= ''
-
     const reader = resData.pipeThrough(new TextDecoderStream()).getReader();
+    
     while (true) {
       const { value, done } = await reader.read();
       if (done) break;
-      chatResponse += value
-      console.log(chatResponse)
+      data += value
+      
     }
-    loading = false
-    
-    return chatResponse || ''
+    return data
   }
-  let data = ''
+  
   async function handleSumbit(searchTerm:string) {
-      if(loading) return
       if(!searchTerm) return
-      loading = true
-      data = getCheese(searchTerm)
-   
+     data =  await getCheese(searchTerm)   
   }
-  
-  
 
 </script>
 
@@ -81,17 +67,15 @@
         }}/>
       </div>
      
-      {#if loading}
-        <div class="flex flex-col items-center justify-center w-full m-12">
-          <Loading />
-        </div>
-      {/if}
-      {#await data}
-      
-        
-      {:then data}
         <p class="m-12 text-xl font-thin w-3/4 whitespace-pre-line">{data}</p>
-      {/await}
+      <footer class="w-full">
+        <hr class="w-full"/>
+        <div class="font-extralight text-xs m-2 justify-center flex">
+          <div>&copy; 2023 &nbsp;</div>
+          
+          <a href='https://berlinersoftwareschmiede.de'>Berliner Softwareschmiede</a>
+        </div>
+      </footer>
     </div>
 </html>
 

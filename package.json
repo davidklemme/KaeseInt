@@ -34,6 +34,8 @@
 	"dependencies": {
 		"daisyui": "^2.51.3",
 		"eventsource-parser": "^1.0.0",
-		"openai": "^3.2.1"
+		"openai": "^3.2.1",
+		"sse": "^0.0.8",
+		"sse.js": "^0.6.1"
 	}
 }
